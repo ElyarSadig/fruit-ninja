@@ -1,0 +1,14 @@
+# Generated local binaries, saves and editor files
+fruit-fury
+fruit-fury.exe
+*.test
+*.out
+.DS_Store
+.idea/
+.vscode/
+
+# Android output; the zipped source omits large generated build files
+android/app/libs/*.aar
+android/**/build/
+android/.gradle/
+dist/

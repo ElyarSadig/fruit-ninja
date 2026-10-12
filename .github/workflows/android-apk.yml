@@ -1,0 +1,54 @@
+name: Build Fruit Fury Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  android-apk:
+    name: Android APK (ARM64)
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+          # The go.sum file is generated on first build; don't require it at checkout.
+          cache: false
+
+      - name: Set up Android SDK tools
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK and NDK
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager --install             'platforms;android-35'             'build-tools;35.0.0'             'ndk;27.2.12479018'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Build APK
+        run: ./scripts/build-android.sh
+
+      - name: Upload sideloadable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fruit-Fury-Android-Debug-APK
+          path: dist/fruit-fury-android-debug.apk
+          if-no-files-found: error
+          retention-days: 30
